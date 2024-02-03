@@ -1,11 +1,14 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
 
+//-------------------------------Creating our own Middleware------------------------------------------//
+
+app.use(morgan('dev'));
 app.use(express.json()); // middleware, it's used when when are posting
 
-//-------------------------------Creating our own Middleware------------------------------------------//
 app.use((req, res, next) => {
   console.log('Hello from middleware');
   next();
@@ -122,6 +125,7 @@ const deleteTour = (req, res) => {
 // app.patch('/api/v1/tours/:id', updateTour);
 // app.delete('/api/v1/tours/:id',deleteTour);
 
+//-----------------------------------------------ROUTES--------------------------------------------------------//
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 
 app
@@ -130,6 +134,7 @@ app
   .patch(createTour)
   .delete(deleteTour);
 
+//--------------------------------------START THE SERVER-------------------------------------------------------------//
 const port = 3000;
 app.listen(port, () => {
   console.log(`App is running on ${port}...`);
