@@ -2,6 +2,28 @@ const fs = require('fs');
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`),
 );
+
+exports.checkId = (req, res, next, val) => {
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: 'Fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  next();
+};
+
+exports.checkbody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'missing name or price',
+    });
+  }
+  next();
+};
+
 exports.getAllTours = (req, res) => {
   console.log(req.requestTime);
 
@@ -18,14 +40,9 @@ exports.getAllTours = (req, res) => {
 exports.getTour = (req, res) => {
   console.log(req.params /*params WHere variable os parameters are stored*/);
 
-  exports.id = req.params.id * 1;
-  if (id > tours.length) {
-    return res.status(404).json({
-      status: 'Fail',
-      message: 'Invalid ID',
-    });
-  }
-  exports.tour = tours.find((el) => el.id === id);
+  const id = req.params.id * 1;
+
+  const tour = tours.find((el) => el.id === id);
 
   res.status(200).json({
     status: 'success',
@@ -38,8 +55,8 @@ exports.getTour = (req, res) => {
 
 exports.createTour = (req, res) => {
   //console.log(req.body);
-  exports.newId = tours[tours.length - 1].id + 1;
-  exports.newTour = Object.assign({ id: newId }, req.body);
+  const newId = tours[tours.length - 1].id + 1;
+  const newTour = Object.assign({ id: newId }, req.body);
 
   tours.push(newTour);
 
@@ -58,13 +75,6 @@ exports.createTour = (req, res) => {
 };
 
 exports.updateTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'Fail',
-      message: 'Invalid ID',
-    });
-  }
-
   res.status(200).json({
     status: 'success',
     data: {
@@ -74,13 +84,6 @@ exports.updateTour = (req, res) => {
 };
 
 exports.deleteTour = (req, res) => {
-  if (req.params.id * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'Fail',
-      message: 'Invalid ID',
-    });
-  }
-
   res.status(204).json({
     status: 'success',
     data: null,

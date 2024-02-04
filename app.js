@@ -5,9 +5,12 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 //-------------------------------Creating our own Middleware------------------------------------------//
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
-app.use(morgan('dev'));
 app.use(express.json()); // middleware, it's used when when are posting
+app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   console.log('Hello from middleware');
@@ -20,6 +23,7 @@ app.use((req, res, next) => {
   next();
 });
 
+//-----------------------------------------Routes------------------------------------------------------------
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
