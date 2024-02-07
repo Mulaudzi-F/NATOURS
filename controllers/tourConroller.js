@@ -1,4 +1,4 @@
-const Tour = require('./models/tourModels');
+const Tour = require('../models/tourModels');
 
 console.log(Tour);
 
