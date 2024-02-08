@@ -4,10 +4,45 @@ console.log(Tour);
 
 exports.getAllTours = async (req, res) => {
   //--------------Reading the document------------//
-
-  const tours = await Tour.find();
-
   try {
+    // -----------*****************BUILD QUERY*************-----------------//
+    //(1) Filtering
+    console.log(req.query);
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    //(2) ADVANCED FILTERING
+
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(
+      /\b(gte|gt|lte|lt|)\b/g,
+      (match) => `$${match}`,
+    );
+
+    console.log(JSON.parse(queryStr));
+
+    // {difficulty: 'easy', duration: {$gte:5}}
+    // {difficulty: 'easy', duration: {gte:5}}
+    // gte, gt, lte,lt
+
+    const query = Tour.find(queryObj);
+    //----------------------------------  Execute Query-----
+    const tours = await query;
+    //filtering data by duration and difficulty
+    /* 
+    const tours = await Tour.find()
+    .where('duration')
+    .equals(5)
+    .where('difficulty')
+    equals('easy')
+    {
+      duration:5,
+
+    })
+  */
+
+    //----------------------------------Send Response-----------------------------//
     res.status(200).json({
       status: 'success',
 
