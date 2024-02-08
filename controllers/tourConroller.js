@@ -1,34 +1,25 @@
+const { query } = require('express');
 const Tour = require('../models/tourModels');
+const APIFeatures = require('./../utils/apiFeatures');
 
-console.log(Tour);
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverages,price';
+  req.query.fields = 'name,price,ratingsAverages,summary,difficulty';
+  next();
+};
 
 exports.getAllTours = async (req, res) => {
   //--------------Reading the document------------//
   try {
-    // -----------*****************BUILD QUERY*************-----------------//
-    //(1) Filtering
-    console.log(req.query);
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
-
-    //(2) ADVANCED FILTERING
-
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(
-      /\b(gte|gt|lte|lt|)\b/g,
-      (match) => `$${match}`,
-    );
-
-    console.log(JSON.parse(queryStr));
-
-    // {difficulty: 'easy', duration: {$gte:5}}
-    // {difficulty: 'easy', duration: {gte:5}}
-    // gte, gt, lte,lt
-
-    const query = Tour.find(queryObj);
     //----------------------------------  Execute Query-----
-    const tours = await query;
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate(0);
+
+    const tours = await features.query;
     //filtering data by duration and difficulty
     /* 
     const tours = await Tour.find()
